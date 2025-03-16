@@ -8,7 +8,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configure Google Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-pro")
+models = genai.list_models()
+
+for m in models:
+    print(m.name)
 
 # Streamlit UI
 st.title("💬 AI Chatbot with Google Gemini")
