@@ -1,17 +1,20 @@
 import streamlit as st
 import google.generativeai as genai
-
-# Set your Gemini API Key here
 import os
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-
-# Configure Google Gemini API
+# Set API key properly
 genai.configure(api_key=GEMINI_API_KEY)
-models = genai.list_models()
 
-for m in models:
-    print(m.name)
+# Check available models
+models = genai.list_models()
+available_models = [m.name for m in models]
+print("Available Models:", available_models)
+
+# Use the correct model if available
+if "gemini-pro" in available_models:
+    model = genai.GenerativeModel("gemini-pro")
+else:
+    st.error("gemini-pro model is not available for your API key. Check your Google AI Studio settings.")
 
 # Streamlit UI
 st.title("💬 AI Chatbot with Google Gemini")
@@ -29,13 +32,15 @@ for msg in st.session_state.messages:
 # User input
 user_input = st.chat_input("Type your message here...")
 if user_input:
-    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": user_input})
     
     # Get AI response
-    response = model.generate_content(user_input)
-    bot_response = response.text if response else "Sorry, I couldn't generate a response."
-    
+    if "gemini-pro" in available_models:
+        response = model.generate_content(user_input)
+        bot_response = response.text if response else "Sorry, I couldn't generate a response."
+    else:
+        bot_response = "Gemini-Pro model is not available."
+
     # Add AI message to history
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
     
